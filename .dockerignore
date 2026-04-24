@@ -1,0 +1,8 @@
+.git
+.idea
+config.json
+*.out
+*.test
+coverage.*
+README.md
+LICENSE

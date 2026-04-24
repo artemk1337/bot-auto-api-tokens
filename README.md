@@ -16,6 +16,14 @@ Telegram-бот поддержки с локальными Ollama-моделям
 
 ## Требования
 
+Для запуска через Docker Compose:
+
+- Docker;
+- Docker Compose;
+- Telegram bot token.
+
+Для локального запуска без Docker:
+
 - Go 1.25.6;
 - запущенная Ollama;
 - скачанная модель, например:
@@ -42,7 +50,7 @@ cp config.example.json config.json
     "allowed_user_ids": []
   },
   "ollama": {
-    "base_url": "http://localhost:11434",
+    "base_url": "${OLLAMA_BASE_URL}",
     "model": "llama3.2",
     "temperature": 0.2,
     "options": {
@@ -72,8 +80,36 @@ cp config.example.json config.json
 
 ## Запуск
 
+### Docker Compose
+
+Запуск бота и Ollama:
+
 ```bash
 export TELEGRAM_BOT_TOKEN=<telegram-token>
+docker compose up --build
+```
+
+По умолчанию compose скачивает модель `llama3.2`. Можно выбрать другую:
+
+```bash
+export TELEGRAM_BOT_TOKEN=<telegram-token>
+export OLLAMA_MODEL=qwen2.5:7b
+docker compose up --build
+```
+
+Ollama доступна на хосте по адресу:
+
+```text
+http://localhost:11434
+```
+
+Данные Ollama сохраняются в volume `ollama-data`, поэтому модель не будет скачиваться заново при каждом запуске.
+
+### Локально без Docker
+
+```bash
+export TELEGRAM_BOT_TOKEN=<telegram-token>
+export OLLAMA_BASE_URL=http://localhost:11434
 go run ./cmd/bot -config config.json
 ```
 
@@ -96,6 +132,12 @@ go test ./...
 - `internal/telegram` - минимальный клиент Telegram Bot API;
 - `internal/ollama` - клиент Ollama `/api/chat`;
 - `internal/bot` - очередь, история переписки, сбор контекста и обработка сообщений.
+
+## Docker
+
+- `Dockerfile` собирает статический бинарник бота и кладет внутрь `config.example.json` как `/app/config.json`.
+- `docker-compose.yml` поднимает `ollama`, скачивает модель через `ollama-pull`, затем запускает `bot`.
+- Для production-конфига можно заменить mount/образ или передавать значения через переменные окружения, которые подставляются при чтении JSON.
 
 ## Лицензия
 
