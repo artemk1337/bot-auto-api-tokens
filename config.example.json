@@ -1,0 +1,22 @@
+{
+  "telegram": {
+    "token": "${TELEGRAM_BOT_TOKEN}",
+    "poll_timeout_seconds": 30,
+    "allowed_user_ids": []
+  },
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "model": "llama3.2",
+    "temperature": 0.2,
+    "options": {
+      "num_ctx": 8192
+    }
+  },
+  "bot": {
+    "history_limit": 10,
+    "system_prompt": "Ты помощник поддержки. Отвечай кратко и по делу.",
+    "documentation_files": [
+      "docs/support.example.md"
+    ]
+  }
+}
