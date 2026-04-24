@@ -19,8 +19,11 @@ services:
         condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
-    entrypoint: ["/bin/sh", "-c", "ollama pull \"$${OLLAMA_MODEL}\""]
+      CONFIG_PATH: /app/config.json
+    volumes:
+      - ${BOT_CONFIG:-./config.example.json}:/app/config.json:ro
+      - ./scripts/ollama-pull-from-config.sh:/scripts/ollama-pull-from-config.sh:ro
+    entrypoint: ["/bin/sh", "/scripts/ollama-pull-from-config.sh"]
     restart: "no"
 
   bot:
@@ -33,6 +36,9 @@ services:
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ${BOT_CONFIG:-./config.example.json}:/app/config.json:ro
+      - ./docs:/app/docs:ro
     command: ["-config", "/app/config.json", "-queue-size", "100"]
 
 volumes:

@@ -89,11 +89,23 @@ export TELEGRAM_BOT_TOKEN=<telegram-token>
 docker compose up --build
 ```
 
-По умолчанию compose скачивает модель `llama3.2`. Можно выбрать другую:
+Модель указывается один раз в `config.json`:
+
+```json
+{
+  "ollama": {
+    "model": "qwen2.5:7b"
+  }
+}
+```
+
+`ollama-pull` читает это же поле и скачивает нужную модель перед запуском бота.
+
+Если хотите использовать не `config.example.json`, укажите путь:
 
 ```bash
 export TELEGRAM_BOT_TOKEN=<telegram-token>
-export OLLAMA_MODEL=qwen2.5:7b
+export BOT_CONFIG=./config.json
 docker compose up --build
 ```
 
@@ -135,9 +147,9 @@ go test ./...
 
 ## Docker
 
-- `Dockerfile` собирает статический бинарник бота и кладет внутрь `config.example.json` как `/app/config.json`.
-- `docker-compose.yml` поднимает `ollama`, скачивает модель через `ollama-pull`, затем запускает `bot`.
-- Для production-конфига можно заменить mount/образ или передавать значения через переменные окружения, которые подставляются при чтении JSON.
+- `Dockerfile` собирает статический бинарник бота.
+- `docker-compose.yml` поднимает `ollama`, читает модель из конфига, скачивает ее через `ollama-pull`, затем запускает `bot`.
+- `BOT_CONFIG` задает путь к JSON-конфигу, который монтируется в контейнеры как `/app/config.json`.
 
 ## Лицензия
 
