@@ -48,3 +48,28 @@ func TestLoadValidatesRequiredFields(t *testing.T) {
 		t.Fatal("expected validation error")
 	}
 }
+
+func TestLoadModelConfigs(t *testing.T) {
+	t.Setenv("TELEGRAM_BOT_TOKEN", "token-123")
+	t.Setenv("OLLAMA_BASE_URL", "http://localhost:11434")
+
+	paths, err := filepath.Glob("../../configs/*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(paths) == 0 {
+		t.Fatal("model configs not found")
+	}
+
+	for _, path := range paths {
+		t.Run(filepath.Base(path), func(t *testing.T) {
+			cfg, err := Load(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if cfg.Ollama.Model == "" {
+				t.Fatal("ollama model is empty")
+			}
+		})
+	}
+}

@@ -34,13 +34,33 @@ ollama pull llama3.2
 
 ## Конфигурация
 
-Скопируйте пример:
+Скопируйте `.env`:
 
 ```bash
-cp config.example.json config.json
+cp .env.example .env
 ```
 
-Минимальный конфиг:
+В `.env` задается Telegram-токен, активный конфиг модели и размер очереди:
+
+```dotenv
+TELEGRAM_BOT_TOKEN=<telegram-token>
+BOT_CONFIG=./configs/llama3.2.json
+QUEUE_SIZE=100
+```
+
+Готовые конфиги моделей лежат в `configs/`:
+
+- `configs/llama3.2.json`
+- `configs/qwen2.5-7b.json`
+- `configs/mistral.json`
+
+Чтобы сменить модель, поменяйте только `BOT_CONFIG` в `.env`:
+
+```dotenv
+BOT_CONFIG=./configs/qwen2.5-7b.json
+```
+
+Пример конфига модели:
 
 ```json
 {
@@ -85,29 +105,12 @@ cp config.example.json config.json
 Запуск бота и Ollama:
 
 ```bash
-export TELEGRAM_BOT_TOKEN=<telegram-token>
+cp .env.example .env
+# отредактируйте .env
 docker compose up --build
 ```
 
-Модель указывается один раз в `config.json`:
-
-```json
-{
-  "ollama": {
-    "model": "qwen2.5:7b"
-  }
-}
-```
-
-`ollama-pull` читает это же поле и скачивает нужную модель перед запуском бота.
-
-Если хотите использовать не `config.example.json`, укажите путь:
-
-```bash
-export TELEGRAM_BOT_TOKEN=<telegram-token>
-export BOT_CONFIG=./config.json
-docker compose up --build
-```
+`ollama-pull` читает `ollama.model` из выбранного JSON-конфига и скачивает нужную модель перед запуском бота.
 
 Ollama доступна на хосте по адресу:
 
@@ -120,15 +123,17 @@ http://localhost:11434
 ### Локально без Docker
 
 ```bash
-export TELEGRAM_BOT_TOKEN=<telegram-token>
+set -a
+. ./.env
+set +a
 export OLLAMA_BASE_URL=http://localhost:11434
-go run ./cmd/bot -config config.json
+go run ./cmd/bot -config "$BOT_CONFIG"
 ```
 
 Размер очереди можно изменить флагом:
 
 ```bash
-go run ./cmd/bot -config config.json -queue-size 200
+go run ./cmd/bot -config "$BOT_CONFIG" -queue-size 200
 ```
 
 ## Тесты
@@ -149,7 +154,8 @@ go test ./...
 
 - `Dockerfile` собирает статический бинарник бота.
 - `docker-compose.yml` поднимает `ollama`, читает модель из конфига, скачивает ее через `ollama-pull`, затем запускает `bot`.
-- `BOT_CONFIG` задает путь к JSON-конфигу, который монтируется в контейнеры как `/app/config.json`.
+- `.env` задает `BOT_CONFIG`, `TELEGRAM_BOT_TOKEN` и `QUEUE_SIZE`.
+- `BOT_CONFIG` задает путь к JSON-конфигу из `configs/`, который монтируется в контейнеры как `/app/config.json`.
 
 ## Лицензия
 

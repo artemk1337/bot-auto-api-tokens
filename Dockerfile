@@ -12,7 +12,7 @@ FROM alpine:3.22
 WORKDIR /app
 COPY --from=builder /out/bot /usr/local/bin/bot
 COPY docs ./docs
-COPY config.example.json ./config.json
+COPY configs/llama3.2.json ./config.json
 
 USER nobody
 
