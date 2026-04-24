@@ -22,10 +22,19 @@ type TelegramConfig struct {
 }
 
 type OllamaConfig struct {
-	BaseURL     string         `json:"base_url"`
-	Model       string         `json:"model"`
-	Temperature float64        `json:"temperature"`
-	Options     map[string]any `json:"options"`
+	BaseURL     string          `json:"base_url"`
+	Model       string          `json:"model"`
+	Think       string          `json:"think"`
+	Temperature float64         `json:"temperature"`
+	Options     map[string]any  `json:"options"`
+	WebSearch   WebSearchConfig `json:"web_search"`
+}
+
+type WebSearchConfig struct {
+	Enabled    bool   `json:"enabled"`
+	APIKey     string `json:"api_key"`
+	BaseURL    string `json:"base_url"`
+	MaxResults int    `json:"max_results"`
 }
 
 type BotConfig struct {
@@ -65,6 +74,12 @@ func (c *Config) setDefaults() {
 	if c.Ollama.BaseURL == "" {
 		c.Ollama.BaseURL = "http://localhost:11434"
 	}
+	if c.Ollama.WebSearch.BaseURL == "" {
+		c.Ollama.WebSearch.BaseURL = "https://ollama.com/api"
+	}
+	if c.Ollama.WebSearch.MaxResults == 0 {
+		c.Ollama.WebSearch.MaxResults = 5
+	}
 	if c.Bot.HistoryLimit == 0 {
 		c.Bot.HistoryLimit = 10
 	}
@@ -82,6 +97,15 @@ func (c Config) Validate() error {
 	}
 	if c.Bot.HistoryLimit < 0 {
 		return errors.New("bot.history_limit must be greater than or equal to 0")
+	}
+	if c.Ollama.Think != "" && c.Ollama.Think != "low" && c.Ollama.Think != "medium" && c.Ollama.Think != "high" {
+		return errors.New("ollama.think must be low, medium, or high")
+	}
+	if c.Ollama.WebSearch.Enabled && strings.TrimSpace(c.Ollama.WebSearch.APIKey) == "" {
+		return errors.New("ollama.web_search.api_key is required when web search is enabled")
+	}
+	if c.Ollama.WebSearch.MaxResults < 1 || c.Ollama.WebSearch.MaxResults > 10 {
+		return errors.New("ollama.web_search.max_results must be between 1 and 10")
 	}
 	if c.Telegram.PollTimeoutSeconds < 1 {
 		return errors.New("telegram.poll_timeout_seconds must be greater than 0")

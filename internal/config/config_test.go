@@ -52,6 +52,7 @@ func TestLoadValidatesRequiredFields(t *testing.T) {
 func TestLoadModelConfigs(t *testing.T) {
 	t.Setenv("TELEGRAM_BOT_TOKEN", "token-123")
 	t.Setenv("OLLAMA_BASE_URL", "http://localhost:11434")
+	t.Setenv("OLLAMA_API_KEY", "ollama-key")
 
 	paths, err := filepath.Glob("../../configs/*.json")
 	if err != nil {

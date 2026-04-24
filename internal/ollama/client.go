@@ -18,18 +18,20 @@ type Message struct {
 type Client struct {
 	baseURL     string
 	model       string
+	think       string
 	temperature float64
 	options     map[string]any
 	httpClient  *http.Client
 }
 
-func NewClient(baseURL, model string, temperature float64, options map[string]any) Client {
+func NewClient(baseURL, model, think string, temperature float64, options map[string]any) Client {
 	if options == nil {
 		options = map[string]any{}
 	}
 	return Client{
 		baseURL:     strings.TrimRight(baseURL, "/"),
 		model:       model,
+		think:       think,
 		temperature: temperature,
 		options:     options,
 		httpClient:  &http.Client{Timeout: 5 * time.Minute},
@@ -49,6 +51,7 @@ func (c Client) Chat(ctx context.Context, messages []Message) (string, error) {
 		Model:    c.model,
 		Messages: messages,
 		Stream:   false,
+		Think:    c.think,
 		Options:  options,
 	}
 	body, err := json.Marshal(reqBody)
@@ -83,6 +86,7 @@ type chatRequest struct {
 	Model    string         `json:"model"`
 	Messages []Message      `json:"messages"`
 	Stream   bool           `json:"stream"`
+	Think    string         `json:"think,omitempty"`
 	Options  map[string]any `json:"options,omitempty"`
 }
 

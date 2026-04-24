@@ -12,7 +12,7 @@ FROM alpine:3.22
 WORKDIR /app
 COPY --from=builder /out/bot /usr/local/bin/bot
 COPY docs ./docs
-COPY configs/llama3.2.json ./config.json
+COPY configs/gpt-oss-20b.json ./config.json
 
 USER nobody
 

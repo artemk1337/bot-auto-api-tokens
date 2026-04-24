@@ -6,14 +6,14 @@
   },
   "ollama": {
     "base_url": "${OLLAMA_BASE_URL}",
-    "model": "qwen2.5:7b",
-    "think": "",
+    "model": "gpt-oss:20b",
+    "think": "low",
     "temperature": 0.2,
     "options": {
       "num_ctx": 8192
     },
     "web_search": {
-      "enabled": false,
+      "enabled": true,
       "api_key": "${OLLAMA_API_KEY}",
       "base_url": "https://ollama.com/api",
       "max_results": 5
@@ -21,7 +21,7 @@
   },
   "bot": {
     "history_limit": 10,
-    "system_prompt": "Ты помощник поддержки. Отвечай кратко и по делу.",
+    "system_prompt": "Ты помощник поддержки. Отвечай кратко и по делу. Если используешь веб-поиск, опирайся только на релевантные найденные фрагменты.",
     "documentation_files": [
       "docs/support.example.md"
     ]

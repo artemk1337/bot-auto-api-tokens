@@ -21,7 +21,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       CONFIG_PATH: /app/config.json
     volumes:
-      - ${BOT_CONFIG:-./configs/llama3.2.json}:/app/config.json:ro
+      - ${BOT_CONFIG:-./configs/gpt-oss-20b.json}:/app/config.json:ro
     entrypoint:
       - /bin/sh
       - -ec
@@ -43,9 +43,10 @@ services:
         condition: service_completed_successfully
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY}
       OLLAMA_BASE_URL: http://ollama:11434
     volumes:
-      - ${BOT_CONFIG:-./configs/llama3.2.json}:/app/config.json:ro
+      - ${BOT_CONFIG:-./configs/gpt-oss-20b.json}:/app/config.json:ro
       - ./docs:/app/docs:ro
     command: ["-config", "/app/config.json", "-queue-size", "${QUEUE_SIZE:-100}"]
 

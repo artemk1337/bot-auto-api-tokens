@@ -25,13 +25,19 @@ func main() {
 	}
 
 	tg := telegram.NewClient(cfg.Telegram.Token)
-	model := ollama.NewClient(cfg.Ollama.BaseURL, cfg.Ollama.Model, cfg.Ollama.Temperature, cfg.Ollama.Options)
+	model := ollama.NewClient(cfg.Ollama.BaseURL, cfg.Ollama.Model, cfg.Ollama.Think, cfg.Ollama.Temperature, cfg.Ollama.Options)
+
+	var searcher bot.Searcher
+	if cfg.Ollama.WebSearch.Enabled {
+		searcher = ollama.NewWebSearchClient(cfg.Ollama.WebSearch.BaseURL, cfg.Ollama.WebSearch.APIKey, cfg.Ollama.WebSearch.MaxResults)
+	}
 
 	service, err := bot.NewService(tg, model, bot.Config{
 		SystemPrompt:       cfg.Bot.SystemPrompt,
 		DocumentationFiles: cfg.Bot.DocumentationFiles,
 		HistoryLimit:       cfg.Bot.HistoryLimit,
 		AllowedUserIDs:     cfg.Telegram.AllowedUserIDs,
+		Searcher:           searcher,
 	})
 	if err != nil {
 		log.Fatal(err)

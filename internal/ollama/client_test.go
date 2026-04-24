@@ -21,7 +21,7 @@ func TestClientChat(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient(server.URL, "llama3.2", 0.3, map[string]any{"num_ctx": float64(4096)})
+	client := NewClient(server.URL, "gpt-oss:20b", "low", 0.3, map[string]any{"num_ctx": float64(4096)})
 	answer, err := client.Chat(context.Background(), []Message{{Role: "user", Content: "hi"}})
 	if err != nil {
 		t.Fatal(err)
@@ -30,8 +30,11 @@ func TestClientChat(t *testing.T) {
 	if answer != "answer" {
 		t.Fatalf("answer = %q", answer)
 	}
-	if got.Model != "llama3.2" {
+	if got.Model != "gpt-oss:20b" {
 		t.Fatalf("model = %q", got.Model)
+	}
+	if got.Think != "low" {
+		t.Fatalf("think = %q", got.Think)
 	}
 	if got.Stream {
 		t.Fatal("stream must be false")
@@ -50,7 +53,7 @@ func TestClientChatReturnsStatusError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient(server.URL, "llama3.2", 0, nil)
+	client := NewClient(server.URL, "llama3.2", "", 0, nil)
 	if _, err := client.Chat(context.Background(), []Message{{Role: "user", Content: "hi"}}); err == nil {
 		t.Fatal("expected status error")
 	}

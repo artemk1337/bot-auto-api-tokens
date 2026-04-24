@@ -7,9 +7,16 @@
   "ollama": {
     "base_url": "${OLLAMA_BASE_URL}",
     "model": "mistral",
+    "think": "",
     "temperature": 0.2,
     "options": {
       "num_ctx": 8192
+    },
+    "web_search": {
+      "enabled": false,
+      "api_key": "${OLLAMA_API_KEY}",
+      "base_url": "https://ollama.com/api",
+      "max_results": 5
     }
   },
   "bot": {
