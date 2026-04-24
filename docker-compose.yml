@@ -22,8 +22,16 @@ services:
       CONFIG_PATH: /app/config.json
     volumes:
       - ${BOT_CONFIG:-./configs/llama3.2.json}:/app/config.json:ro
-      - ./scripts/ollama-pull-from-config.sh:/scripts/ollama-pull-from-config.sh:ro
-    entrypoint: ["/bin/sh", "/scripts/ollama-pull-from-config.sh"]
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        model="$$(awk '/"ollama"[[:space:]]*:/ { in_ollama = 1 } in_ollama && /"model"[[:space:]]*:/ { line = $$0; sub(/^.*"model"[[:space:]]*:[[:space:]]*"/, "", line); sub(/".*$$/, "", line); print line; exit }' "$$CONFIG_PATH")"
+        if [ -z "$$model" ]; then
+          echo "ollama.model is required in $$CONFIG_PATH" >&2
+          exit 1
+        fi
+        ollama pull "$$model"
     restart: "no"
 
   bot:
