@@ -11,10 +11,9 @@ Telegram-бот поддержки с локальными Ollama-моделям
 - настраиваемый лимит истории переписки;
 - системный промпт из конфига;
 - дополнительный контекст из файлов документации;
-- web search через Ollama Web Search API;
 - настройка thinking level для моделей GPT-OSS;
 - ограничение доступа по Telegram user ID;
-- нулевые runtime-зависимости кроме Go, Telegram Bot API, Ollama и опционального Ollama API key для web search.
+- нулевые runtime-зависимости кроме Go, Telegram Bot API и Ollama.
 
 ## Требования
 
@@ -23,7 +22,6 @@ Telegram-бот поддержки с локальными Ollama-моделям
 - Docker;
 - Docker Compose;
 - Telegram bot token.
-- Ollama API key, если включен web search.
 
 Для локального запуска без Docker:
 
@@ -47,14 +45,13 @@ cp .env.example .env
 
 ```dotenv
 TELEGRAM_BOT_TOKEN=<telegram-token>
-OLLAMA_API_KEY=<ollama-api-key>
 BOT_CONFIG=./configs/gpt-oss-20b.json
 QUEUE_SIZE=100
 ```
 
 Готовые конфиги моделей лежат в `configs/`:
 
-- `configs/gpt-oss-20b.json` - дефолт: `gpt-oss:20b`, `think: low`, web search включен;
+- `configs/gpt-oss-20b.json` - дефолт: `gpt-oss:20b`, `think: low`;
 - `configs/llama3.2.json`
 - `configs/qwen2.5-7b.json`
 - `configs/mistral.json`
@@ -69,11 +66,6 @@ BOT_CONFIG=./configs/qwen2.5-7b.json
 
 ```json
 {
-  "telegram": {
-    "token": "${TELEGRAM_BOT_TOKEN}",
-    "poll_timeout_seconds": 30,
-    "allowed_user_ids": []
-  },
   "ollama": {
     "base_url": "${OLLAMA_BASE_URL}",
     "model": "gpt-oss:20b",
@@ -81,12 +73,6 @@ BOT_CONFIG=./configs/qwen2.5-7b.json
     "temperature": 0.2,
     "options": {
       "num_ctx": 8192
-    },
-    "web_search": {
-      "enabled": true,
-      "api_key": "${OLLAMA_API_KEY}",
-      "base_url": "https://ollama.com/api",
-      "max_results": 5
     }
   },
   "bot": {
@@ -101,6 +87,7 @@ BOT_CONFIG=./configs/qwen2.5-7b.json
 
 `allowed_user_ids`:
 
+- поле опциональное;
 - пустой список разрешает всех пользователей;
 - непустой список разрешает только указанные Telegram user ID.
 
@@ -109,12 +96,6 @@ BOT_CONFIG=./configs/qwen2.5-7b.json
 - файлы читаются при старте;
 - содержимое добавляется в `system`-сообщение перед запросом к модели;
 - если файл не найден, бот не стартует, чтобы не отвечать без ожидаемого контекста.
-
-`ollama.web_search`:
-
-- при `enabled: true` бот перед запросом к модели делает web search по вопросу пользователя;
-- результаты добавляются отдельным `system`-сообщением в контекст;
-- нужен `OLLAMA_API_KEY`.
 
 ## Запуск
 
@@ -172,7 +153,7 @@ go test ./...
 
 - `Dockerfile` собирает статический бинарник бота.
 - `docker-compose.yml` поднимает `ollama`, читает модель из конфига, скачивает ее через `ollama-pull`, затем запускает `bot`.
-- `.env` задает `BOT_CONFIG`, `TELEGRAM_BOT_TOKEN`, `OLLAMA_API_KEY` и `QUEUE_SIZE`.
+- `.env` задает `BOT_CONFIG`, `TELEGRAM_BOT_TOKEN` и `QUEUE_SIZE`.
 - `BOT_CONFIG` задает путь к JSON-конфигу из `configs/`, который монтируется в контейнеры как `/app/config.json`.
 
 ## Лицензия

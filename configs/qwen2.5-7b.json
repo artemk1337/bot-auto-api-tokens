@@ -1,9 +1,4 @@
 {
-  "telegram": {
-    "token": "${TELEGRAM_BOT_TOKEN}",
-    "poll_timeout_seconds": 30,
-    "allowed_user_ids": []
-  },
   "ollama": {
     "base_url": "${OLLAMA_BASE_URL}",
     "model": "qwen2.5:7b",
@@ -11,12 +6,6 @@
     "temperature": 0.2,
     "options": {
       "num_ctx": 8192
-    },
-    "web_search": {
-      "enabled": false,
-      "api_key": "${OLLAMA_API_KEY}",
-      "base_url": "https://ollama.com/api",
-      "max_results": 5
     }
   },
   "bot": {

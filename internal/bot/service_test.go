@@ -97,40 +97,6 @@ func TestServiceDeniesUnknownUser(t *testing.T) {
 	}
 }
 
-func TestServiceAddsSearchResults(t *testing.T) {
-	tg := &fakeTelegram{}
-	model := &fakeModel{answer: "answer"}
-	service, err := NewService(tg, model, Config{
-		HistoryLimit: 10,
-		Searcher: &fakeSearcher{results: []ollama.SearchResult{
-			{Title: "Result", URL: "https://example.com", Content: "Useful snippet"},
-		}},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = service.HandleMessage(context.Background(), telegram.Message{
-		From: telegram.User{ID: 1},
-		Chat: telegram.Chat{ID: 10},
-		Text: "question",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request := model.requests[0]
-	if len(request) != 2 {
-		t.Fatalf("messages count = %d: %#v", len(request), request)
-	}
-	if request[0].Role != "system" || !strings.Contains(request[0].Content, "Useful snippet") {
-		t.Fatalf("search message = %#v", request[0])
-	}
-	if request[1].Role != "user" || request[1].Content != "question" {
-		t.Fatalf("user message = %#v", request[1])
-	}
-}
-
 type fakeTelegram struct {
 	sent []sentMessage
 }
@@ -155,12 +121,4 @@ func (f *fakeModel) Chat(ctx context.Context, messages []ollama.Message) (string
 	copy(copied, messages)
 	f.requests = append(f.requests, copied)
 	return f.answer, nil
-}
-
-type fakeSearcher struct {
-	results []ollama.SearchResult
-}
-
-func (f *fakeSearcher) Search(ctx context.Context, query string) ([]ollama.SearchResult, error) {
-	return f.results, nil
 }

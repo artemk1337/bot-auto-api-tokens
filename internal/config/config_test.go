@@ -37,6 +37,27 @@ func TestLoadExpandsEnvAndDefaults(t *testing.T) {
 	}
 }
 
+func TestLoadUsesTelegramTokenFromEnv(t *testing.T) {
+	t.Setenv("TELEGRAM_BOT_TOKEN", "token-123")
+
+	path := filepath.Join(t.TempDir(), "config.json")
+	err := os.WriteFile(path, []byte(`{
+		"ollama": {"model": "llama3.2"},
+		"bot": {}
+	}`), 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Telegram.Token != "token-123" {
+		t.Fatalf("token = %q", cfg.Telegram.Token)
+	}
+}
+
 func TestLoadValidatesRequiredFields(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "config.json")
 	err := os.WriteFile(path, []byte(`{"telegram": {}, "ollama": {}, "bot": {}}`), 0o600)
@@ -52,7 +73,6 @@ func TestLoadValidatesRequiredFields(t *testing.T) {
 func TestLoadModelConfigs(t *testing.T) {
 	t.Setenv("TELEGRAM_BOT_TOKEN", "token-123")
 	t.Setenv("OLLAMA_BASE_URL", "http://localhost:11434")
-	t.Setenv("OLLAMA_API_KEY", "ollama-key")
 
 	paths, err := filepath.Glob("../../configs/*.json")
 	if err != nil {
